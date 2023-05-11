@@ -10,7 +10,9 @@
 Servo servo1;
 
 void manual(void);
-
+float calcula_pos(float err, float lectura_pos, float pos_env);
+void realimentacion(float lectura_pos, float pos_env);
+float calcula_error(float err, float pos_env);
 
 void setup() {
   pinMode(P1,INPUT);
@@ -24,20 +26,33 @@ void setup() {
 }
 
 void loop() {
-  manual();
+  realimentacion(analogRead(P1), 45);
 }
 
-void manual(void){
-  servo1.write(60);
+void manual(float pos_env){
+  servo1.write(pos_env);
   Serial.println(analogRead(P1));
   delay(1000);
-  servo1.write(75);
-  Serial.println(analogRead(P1));
-  delay(1000);
-  servo1.write(90);
-  Serial.println(analogRead(P1));
-  delay(1000);
-  //servo1.write(0);
-  //Serial.println(analogRead(P1));
-  //delay(1000);
+}
+void realimentacion(float lectura_pos, float pos_env){
+  float err = lectura_pos - pos_env;
+  int k = 0;
+  float err_rel = calcula_error(err, pos_env);
+  while (err_rel < 0.01 || k <10){
+    pos_env = calcula_pos(err,lectura_pos, pos_env);
+    manual(pos_env);
+    err_rel = calcula_error(err, pos_env);
+    delay(50);
+    k++;
+  }
+}
+float calcula_pos(float err, float lectura_pos, float pos_env){
+  if (lectura_pos != pos_env){
+    pos_env = lectura_pos - err;
+  };
+  return pos_env;
+}
+float calcula_error(float err, float pos_env){
+  float err_rel = abs(err)/pos_env;
+  return err_rel;
 }
