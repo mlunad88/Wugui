@@ -48,6 +48,7 @@ void loop() {
   angle = convert_and_clip(angle);
   
   eslabon.pos_env = k*angle; //Enviamos al servo
+  
   /*LECTURAS*/
   Serial.println("CALCULOS");
   Serial.println("--------------");
@@ -59,7 +60,6 @@ void loop() {
 
 void manual(){
   servo1.write(eslabon.pos_env);
-  Serial.println(analogRead(P1));
   delay(1000);
 }
 void real(){

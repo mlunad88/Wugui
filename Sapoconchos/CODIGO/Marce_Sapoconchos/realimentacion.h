@@ -4,10 +4,10 @@ class realimentacion {
 public:
 	float lectura_pos;
 	float pos_env;
-	int k;
+	int k=0;
 	float err;
 	float err_rel;
 
-	float calculapos(void);
 	float calcula_error(void);
+  int cadena(void);
 };
