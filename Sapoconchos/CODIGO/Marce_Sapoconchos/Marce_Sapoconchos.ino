@@ -26,8 +26,6 @@ float conv_ang1, conv_ang2, offset=59.6, pendiente=2.765; //supuestamente 3
 double offset2=66.5, pendiente2=3.4;
 //HAY QUE AJUSTAR VALORES DE OFFSET Y PENDIENTE!!!!!
 
-void manual(void);
-void real(void);
 int convert_and_clip(int);
 float media(int, int); // media(LECTURA, NUMERO SERVO)
 
@@ -47,33 +45,21 @@ void loop() {
   
   angle = convert_and_clip(angle);
   
-  eslabon.pos_env = k*angle; //Enviamos al servo
+  eslabon.pos_env = k*angle;
+  servo1.write(eslabon.pos_env);//Enviamos al servo
   
   /*LECTURAS*/
   Serial.println("CALCULOS");
   Serial.println("--------------");
+
+  /* REALIMENTACION */
+  eslabon.lectura_pos = media(analogRead(P1), 1); //variable de posicion leida
+  eslabon.ini();
+  int estado1 = eslabon.cadena(); // Estado de la cadena
   
-  eslabon.lectura_pos = media(analogRead(P1), 1);
-
-  real();
 }
 
-void manual(){
-  servo1.write(eslabon.pos_env);
-  delay(1000);
-}
-void real(){
-  eslabon.err = eslabon.lectura_pos - eslabon.pos_env;
-  eslabon.k = 0;
-  eslabon.err_rel = eslabon.calcula_error();
-  while (eslabon.err_rel < 0.01 || eslabon.k <10){
-    eslabon.pos_env = eslabon.calculapos();
-    manual();
-    eslabon.err_rel = eslabon.calcula_error();
-    delay(50);
-    eslabon.k++;
-  }
-}
+
 float media(int lectura, int num_servo){
   int v[DIM];
   int suma=0;
