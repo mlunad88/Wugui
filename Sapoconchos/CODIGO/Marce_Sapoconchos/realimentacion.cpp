@@ -36,15 +36,13 @@ int realimentacion::cadena(){
     err_rel = calcula_error(pos_rec); // recalcular tolerancia
     k++;
   }
-  else{
-    if (err_rel <= 0.01){
-      return 0;
-    }
-    else if (k >= 10){
-      return 1;
-    }
-    else{
-      return 2;
-      }
+  if (err_rel <= 0.01){
+    return 0;
   }
+  else if (k >= 10){
+    return 1;
+  }
+  else{
+    return 2;
+  };
 }

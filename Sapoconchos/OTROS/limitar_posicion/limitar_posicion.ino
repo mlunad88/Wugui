@@ -32,7 +32,7 @@ int clip(int angle) {
 void setup() {
   Serial.begin(9600);
 
-  myservo.attach(9);  // Configurar pin de salida
+  myservo.attach(11);  // Configurar pin de salida
   myservo.write(zero_position); // Establecer la posición inicial del servo
 }
 
@@ -43,7 +43,7 @@ void loop() {
   myservo.write(k*angle);  // Mover a posición recortada
   delay(1000);           // Esperar 1 segundo
 
-  realiment1 =analogRead(A0);
+  realiment1 =analogRead(A1);
   Serial.println(realiment1);
   delay(1000);
 }
