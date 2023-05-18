@@ -9,7 +9,24 @@ float realimentacion::calcula_error(float pos) {
 void realimentacion::ini(){
   k = 0; // inicializa el contador de ciclos
   err = lectura_pos - pos_env; // calcular distancia a la que se ha quedado de la dada
-  err_rel = calcula_error(); // calcular tolerancia
+  err_rel = calcula_error(lectura_pos); // calcular tolerancia
+}
+void realimentacion::recoge(int lectura_raw){
+  v[cuenta_vector] = lectura_raw;// Introduce en el vector las lecturas para hacer la media
+}
+float realimentacion::media(float offset, float pendiente){
+  int suma=0;
+  float media = 0;
+    for (int i = 0; i<=DIM; i++){
+      if (i<DIM){
+        suma+=v[i];
+      }
+      if (i==DIM){
+       media=(float)(suma/DIM);
+       pos_real=(float)(media-offset)/pendiente;
+      }
+  }
+  return media;
 }
 
 int realimentacion::cadena(){
@@ -17,21 +34,17 @@ int realimentacion::cadena(){
   if (err_rel > 0.01 || k <10){
     pos_rec = lectura_pos - err; // corregir posicion enviada
     err_rel = calcula_error(pos_rec); // recalcular tolerancia
-    delay(50);
     k++;
   }
   else{
     if (err_rel <= 0.01){
-      Serial.println("TOLERANCIA OK");
       return 0;
     }
-    if (k >= 10){
-      Serial.println("CICLOS MAXIMOS ALCANZADOS, REVISAR TOLERANCIA");
-      return 0;
+    else if (k >= 10){
+      return 1;
     }
     else{
-      Serial.println("ERROR");
-      return 1;
+      return 2;
       }
   }
 }
