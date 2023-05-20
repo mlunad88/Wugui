@@ -7,6 +7,7 @@ public:
 	float pos_env;
   float pos_rec;
   float pos_real;
+  float offset;
 	int k=0;
 	float err;
 	float err_rel;
@@ -20,5 +21,5 @@ public:
 	float calcula_error(float);
   int cadena(void);
   void recoge(int);
-  float media(float, float);
+  void media(float);
 };

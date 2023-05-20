@@ -12,8 +12,8 @@
 // Macros para los pines analógicos de los potes
 #define P1 A1 // CODO
 #define P2 A0 // MUÑECA
-#define P3 A2 //HOMBRO
-#define P4 A3 //BASE
+#define P3 A2 // HOMBRO
+#define P4 A3 // BASE
 
 // Otras macros
 //(S1 & S2)
@@ -28,7 +28,7 @@
 #define servo_range_S3 90.0
 #define k_S3 1
 #define OFFSET_S3 66.5
-#define PENDIENTE_S3 3.4
+#define PENDIENTE_S3 3
 
 
 // Creación de los objetos servo en el código
@@ -65,17 +65,19 @@ void setup() {
   /* Unimos los servos al pin que les corresponde */
   
   // ESLABON 0 //
-  /*servo1.attach(S1);
+  servo1.attach(S1);
   
   eslabon1.pos_env = k*convert_and_clip(0);
   servo1.write(eslabon1.pos_env); // Establecer la posición inicial del servo
-  eslabon1.num_servo = 1;*/
+  delay(1500);
+  eslabon1.offset = analogRead(A1);
+  eslabon1.num_servo = 1;
 
   // ESLABON 1//
- /* servo2.attach(S2);
+   servo2.attach(S2);
   eslabon2.pos_env = k*convert_and_clip(0);
   servo2.write(eslabon2.pos_env); // Establecer la posición inicial del servo
-  eslabon2.num_servo = 2;*/
+  eslabon2.num_servo = 2;
   
   //ESLABON 2//
   servo3.attach(S3);
@@ -84,12 +86,10 @@ void setup() {
   eslabon3.num_servo=3;
 
   //ESLABON 3//
-  /*
   servo4.attach(S4);
   eslabon4.pos_env=k*convert_and_clip(0);
   servo4.write(eslabon4.pos_env); //Establecer la posicion inicial del servo
   eslabon4.num_servo=4;
-  */
 }
 
 void loop() {
@@ -107,10 +107,10 @@ void loop() {
     angle1 = convert_and_clip_S3(angle1);
     eslabon3.pos_env = k_S3*angle1;
   };
-  //motor1();
+  motor1();
   //motor2();
-  servo3.write(eslabon3.pos_env);
-  delay(1000);
+  //servo3.write(eslabon3.pos_env);
+  //delay(1000);
 }
 
 int convert_and_clip(int angle) {
@@ -162,10 +162,7 @@ void motor1(){
     Serial.println(" ");
     Serial.println("--------------");
     Serial.println("CALCULOS");
-    Serial.print("MEDIA SERVO NUM. ");
-    Serial.print(eslabon1.num_servo);
-    Serial.print(": ");
-    Serial.print(eslabon1.media(OFFSET, PENDIENTE));
+    eslabon1.media(PENDIENTE);
     Serial.println("");
     Serial.print("POSICION REAL SERVO ");
     Serial.print(eslabon1.num_servo);
@@ -215,10 +212,7 @@ void motor2(){
     Serial.println(" ");
     Serial.println("--------------");
     Serial.println("CALCULOS");
-    Serial.print("MEDIA SERVO NUM. ");
-    Serial.print(eslabon2.num_servo);
-    Serial.print(": ");
-    Serial.print(eslabon2.media(OFFSET, PENDIENTE));
+    eslabon2.media(PENDIENTE);
     Serial.println("");
     Serial.print("POSICION REAL SERVO ");
     Serial.print(eslabon2.num_servo);

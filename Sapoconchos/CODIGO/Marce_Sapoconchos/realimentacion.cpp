@@ -14,7 +14,7 @@ void realimentacion::ini(){
 void realimentacion::recoge(int lectura_raw){
   v[cuenta_vector] = lectura_raw;// Introduce en el vector las lecturas para hacer la media
 }
-float realimentacion::media(float offset, float pendiente){
+void realimentacion::media(float pendiente){
   int suma=0;
   float media = 0;
     for (int i = 0; i<=DIM; i++){
@@ -25,8 +25,7 @@ float realimentacion::media(float offset, float pendiente){
        media=(float)(suma/DIM);
        pos_real=(float)(media-offset)/pendiente;
       }
-  }
-  return media;
+  };
 }
 
 int realimentacion::cadena(){
