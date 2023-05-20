@@ -25,18 +25,21 @@ void realimentacion::media(float pendiente){
     if (i==DIM){
      media=(float)(suma/DIM);
      pos_real=(float)(media-offset)/pendiente;
+     pos_real = read_traduct(pos_real);
     }
   };
+}
+float realimentacion::read_traduct(float pos){
   if (num_servo == 3){
-    if (pos_real <= 0) pos_real = (-90.0 / 280.0) * pos_real;
-    else if (pos_real > 0) pos_real = (90.0 / 280.0) * pos_real;
+    if (pos <= 0) pos = (-90.0 / 280.0) * pos;
+    else if (pos > 0) pos = (90.0 / 280.0) * pos;
   }
   else{
-    if (pos_real < 0) pos_real = (-125.0 / 88.97) * pos_real;
-    if (pos_real >= 0) pos_real = (125.0 / 84.99) * pos_real;
+    if (pos < 0) pos = (-125.0 / 88.97) * pos;
+    if (pos >= 0) pos = (125.0 / 84.99) * pos;
   };
+  return pos;
 }
-
 int realimentacion::cadena(){
   // IMPLEMENTACION DEL LAZO CERRADO
   if ( (err_rel > tol && err_rel < 0.20 ) || k < 10){

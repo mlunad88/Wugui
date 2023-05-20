@@ -1,6 +1,6 @@
 #include <Servo.h>
 #include "realimentacion.h"
-
+#include "CInversa.h"
 /* MACROS */
 // Macros para los pines de los servos
 #define S1 11 // CODO
@@ -37,6 +37,9 @@ Servo servo2; //MUÑECA
 Servo servo3; //HOMBRO
 Servo servo4; //BASE
 
+// CINEMATICA INVERSA
+//CInversa cin_inversa;
+
 // Creación de los objetos realimentación
 realimentacion eslabon1;
 realimentacion eslabon2;
@@ -45,6 +48,8 @@ realimentacion eslabon4;
 
 int convert_and_clip(int); //CONVERTIR ANGULOS
 int convert_and_clip_S3(int); //CONVERTIR ANGULOS
+void viajar_punto(int);
+void esencial(int);
 
 void motor1(void);
 void motor2(void);
@@ -94,37 +99,75 @@ void setup() {
   eslabon4.offset = analogRead(P4);
   eslabon4.flag = true;
   eslabon4.num_servo = 4;
+
+  delay(2000);
 }
 
 void loop() {
-  /*LEER ANGULO MANDADO*/
   if (Serial.available()>0){
-    int angle1, angle2, angle3, angle4;
     String str = Serial.readStringUntil('\n');
     int input = str.toFloat();
-    Serial.println(" ");
-    Serial.print("Has enviado: ");
-    Serial.print(input);
-    Serial.println(" ");
-    angle1 = convert_and_clip(input);
-    angle2 = convert_and_clip(input);
-    angle3 = convert_and_clip_S3(input);
-    angle4 = convert_and_clip(input);
-    eslabon1.pos_env = k*angle1;
-    eslabon2.pos_env = k*angle2;
-    eslabon3.pos_env = k_S3*angle3;
-    eslabon4.pos_env = k*angle4;
-    };
-    //servo2.write(eslabon2.pos_env);
-    //servo3.write(eslabon3.pos_env);
-    //servo4.write(eslabon4.pos_env);
-    // Funciones de realimentacion
-    motor1();
-    motor2();
-    motor3();
-    motor4();
+    esencial(input);
+    Serial.println(input);
+  };
+  servo1.write(eslabon1.pos_env);
+  servo2.write(eslabon2.pos_env);
+  servo3.write(eslabon3.pos_env);
+  servo4.write(eslabon4.pos_env);
+  // Funciones de realimentacion
+  motor1();
+  motor2();
+  motor3();
+  motor4();
 }
-
+void esencial(int n){
+  int angle1, angle2, angle3, angle4;
+  angle1 = convert_and_clip(n);
+  angle2 = convert_and_clip(n);
+  angle3 = convert_and_clip_S3(-n);
+  angle4 = convert_and_clip(n);
+  eslabon1.pos_env = k*angle1;
+  eslabon2.pos_env = k*angle2;
+  eslabon3.pos_env = k_S3*angle3;
+  eslabon4.pos_env = k*angle4;
+}
+void viajar_punto(int n){
+  int angle1, angle2, angle3, angle4;
+  
+  switch(n){
+    case 1:{
+      angle1 = convert_and_clip(20);
+      angle2 = convert_and_clip(20);
+      angle3 = convert_and_clip_S3(-20);
+      angle4 = convert_and_clip(20);
+      eslabon1.pos_env = k*angle1;
+      eslabon2.pos_env = k*angle2;
+      eslabon3.pos_env = k_S3*angle3;
+      eslabon4.pos_env = k*angle4;
+    }
+    case 2:{
+      angle1 = convert_and_clip(30);
+      angle2 = convert_and_clip(30);
+      angle3 = convert_and_clip_S3(-40);
+      angle4 = convert_and_clip(20);
+      eslabon1.pos_env = k*angle1;
+      eslabon2.pos_env = k*angle2;
+      eslabon3.pos_env = k_S3*angle3;
+      eslabon4.pos_env = k*angle4;
+    }
+    case 3:{
+      angle1 = convert_and_clip(0);
+      angle2 = convert_and_clip(30);
+      angle3 = convert_and_clip_S3(-60);
+      angle4 = convert_and_clip(30);
+      eslabon1.pos_env = k*angle1;
+      eslabon2.pos_env = k*angle2;
+      eslabon3.pos_env = k_S3*angle3;
+      eslabon4.pos_env = k*angle4;
+    }
+    break;
+  };
+}
 int convert_and_clip(int angle) {
   /*
    * Función para convertir ángulos negativos en grados positivos
@@ -172,9 +215,8 @@ void motor1(){
   }
   else{
     eslabon1.media(PENDIENTE);
-    
-    /* REALIMENTACION */
     eslabon1.lectura_pos = eslabon1.pos_real; //variable de posicion leida media
+    /* REALIMENTACION */
     if (eslabon1.flag) eslabon1.ini(); //inicializacion de la realimentacion
     
     int resultado_cadena = eslabon1.cadena();

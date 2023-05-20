@@ -28,4 +28,5 @@ public:
   void set_tol(float t){
     tol = t;
   };
+  float read_traduct(float);
 };
