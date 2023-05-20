@@ -11,7 +11,7 @@ public:
   float offset;
 	int k=0;
   float tol;
-	float err;
+	int err;
 	double err_rel;
   int dim = DIM;
   int v[DIM];

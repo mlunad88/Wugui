@@ -43,13 +43,13 @@ realimentacion eslabon2;
 realimentacion eslabon3;
 realimentacion eslabon4;
 
-//float conv_ang1, conv_ang2, offset=59.6, pendiente=2.765; //supuestamente 3
-//double offset2=66.5, pendiente2=3.4;
-//HAY QUE AJUSTAR VALORES DE OFFSET Y PENDIENTE!!!!!
-
 int convert_and_clip(int); //CONVERTIR ANGULOS
+int convert_and_clip_S3(int); //CONVERTIR ANGULOS
+
 void motor1(void);
 void motor2(void);
+void motor3(void);
+void motor4(void);
 
 void setup() {
   pinMode(P1,INPUT);
@@ -97,10 +97,8 @@ void setup() {
 }
 
 void loop() {
-  eslabon1.pos_estoy = eslabon1.pos_env;
   /*LEER ANGULO MANDADO*/
-  if (Serial.available()>0)
-  {
+  if (Serial.available()>0){
     int angle1, angle2, angle3, angle4;
     String str = Serial.readStringUntil('\n');
     int input = str.toFloat();
@@ -117,21 +115,14 @@ void loop() {
     eslabon3.pos_env = k_S3*angle3;
     eslabon4.pos_env = k*angle4;
     };
-    if (eslabon1.pos_env != eslabon1.pos_estoy){
-      for(int i = eslabon1.pos_estoy; i < eslabon1.pos_env; i++){
-        servo1.write(i);
-        delay(50);
-    };
     //servo2.write(eslabon2.pos_env);
     //servo3.write(eslabon3.pos_env);
     //servo4.write(eslabon4.pos_env);
-  };
-  
-  // Funciones de realimentacion
-  motor1();
-  motor2();
-  motor3();
-  motor4();
+    // Funciones de realimentacion
+    motor1();
+    motor2();
+    motor3();
+    motor4();
 }
 
 int convert_and_clip(int angle) {
