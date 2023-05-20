@@ -5,6 +5,7 @@ public:
 	/*VARIABLES*/
 	float lectura_pos;
 	float pos_env;
+  float pos_estoy;
   float pos_rec;
   float pos_real;
   float offset;

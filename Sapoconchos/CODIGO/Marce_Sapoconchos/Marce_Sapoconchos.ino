@@ -97,7 +97,7 @@ void setup() {
 }
 
 void loop() {
-  
+  eslabon1.pos_estoy = eslabon1.pos_env;
   /*LEER ANGULO MANDADO*/
   if (Serial.available()>0)
   {
@@ -116,10 +116,15 @@ void loop() {
     eslabon2.pos_env = k*angle2;
     eslabon3.pos_env = k_S3*angle3;
     eslabon4.pos_env = k*angle4;
-    servo1.write(eslabon1.pos_env);
-    servo2.write(eslabon2.pos_env);
-    servo3.write(eslabon3.pos_env);
-    servo4.write(eslabon4.pos_env);
+    };
+    if (eslabon1.pos_env != eslabon1.pos_estoy){
+      for(int i = eslabon1.pos_estoy; i < eslabon1.pos_env; i++){
+        servo1.write(i);
+        delay(50);
+    };
+    //servo2.write(eslabon2.pos_env);
+    //servo3.write(eslabon3.pos_env);
+    //servo4.write(eslabon4.pos_env);
   };
   
   // Funciones de realimentacion
