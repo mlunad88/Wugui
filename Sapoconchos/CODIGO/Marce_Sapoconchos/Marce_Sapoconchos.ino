@@ -45,8 +45,6 @@ realimentacion eslabon4;
 
 //float conv_ang1, conv_ang2, offset=59.6, pendiente=2.765; //supuestamente 3
 //double offset2=66.5, pendiente2=3.4;
-bool flag = true;
-bool flag2 = true;
 //HAY QUE AJUSTAR VALORES DE OFFSET Y PENDIENTE!!!!!
 
 int convert_and_clip(int); //CONVERTIR ANGULOS
@@ -56,7 +54,7 @@ void motor2(void);
 void setup() {
   pinMode(P1,INPUT);
   pinMode(P2,INPUT);
-  pinMode(P3, INPUT);
+  pinMode(P3,INPUT);
   pinMode(P4,INPUT);
   
   // Para leer la posición de los servos y los potes en pantalla
@@ -64,28 +62,31 @@ void setup() {
 
   /* Unimos los servos al pin que les corresponde */
   
-  // ESLABON 0 //
+  // ESLABON 1 //
   servo1.attach(S1);
-  
   eslabon1.pos_env = k*convert_and_clip(0);
   servo1.write(eslabon1.pos_env); // Establecer la posición inicial del servo
-  delay(1500);
-  eslabon1.offset = analogRead(A1);
+  eslabon1.offset = analogRead(P1);
+  eslabon1.flag = true;
   eslabon1.num_servo = 1;
 
-  // ESLABON 1//
-   servo2.attach(S2);
+  // ESLABON 2//
+  servo2.attach(S2);
   eslabon2.pos_env = k*convert_and_clip(0);
   servo2.write(eslabon2.pos_env); // Establecer la posición inicial del servo
+  eslabon2.offset = analogRead(P2);
+  eslabon2.flag = true;
   eslabon2.num_servo = 2;
   
-  //ESLABON 2//
+  //ESLABON 3//
   servo3.attach(S3);
   eslabon3.pos_env=k_S3*convert_and_clip_S3(0);
   servo3.write(eslabon3.pos_env); //Establecer la posicion inicial del servo
+  eslabon3.offset = analogRead(P3);
+  eslabon3.flag = true;
   eslabon3.num_servo=3;
 
-  //ESLABON 3//
+  //ESLABON 4//
   servo4.attach(S4);
   eslabon4.pos_env=k*convert_and_clip(0);
   servo4.write(eslabon4.pos_env); //Establecer la posicion inicial del servo
@@ -104,13 +105,20 @@ void loop() {
     Serial.print("Has enviado: ");
     Serial.print(angle1);
     Serial.println(" ");
-    angle1 = convert_and_clip_S3(angle1);
+    angle1 = convert_and_clip(angle1);
+    angle2 = convert_and_clip(angle2);
+    angle3 = convert_and_clip_S3(angle3);
+    //eslabon1.pos_env = k*angle1;
+    //eslabon2.pos_env = k*angle1;
     eslabon3.pos_env = k_S3*angle1;
+    //eslabon4.pos_env = k*angle1;
+    servo1.write(eslabon1.pos_env);
+    servo2.write(eslabon2.pos_env);
   };
   motor1();
-  //motor2();
+  motor2();
+  motor3();
   //servo3.write(eslabon3.pos_env);
-  //delay(1000);
 }
 
 int convert_and_clip(int angle) {
@@ -153,100 +161,135 @@ int convert_and_clip_S3(int angle) { //SOLO PUEDE MOVER ANGULOS NEGATIVOS HASTA 
 void motor1(){
   /*LECTURAS */
 
-  // CALCULO DE LA MEDIA
+  // CALCULO DE LA MEDIA DE LAS LECTURAS
   if (eslabon1.cuenta_vector < eslabon1.dim ){
     eslabon1.recoge(analogRead(P1));
     eslabon1.cuenta_vector++;
   }
   else{
-    Serial.println(" ");
-    Serial.println("--------------");
-    Serial.println("CALCULOS");
     eslabon1.media(PENDIENTE);
-    Serial.println("");
-    Serial.print("POSICION REAL SERVO ");
-    Serial.print(eslabon1.num_servo);
-    Serial.print(": ");
-    Serial.print(eslabon1.pos_real);
-    Serial.println(" ");
-    delay(500);
+    
     /* REALIMENTACION */
-    
-    if (flag) {eslabon1.ini();}; //inicializacion de la realimentacion
-    
     eslabon1.lectura_pos = eslabon1.pos_real; //variable de posicion leida media
+    if (eslabon1.flag) eslabon1.ini(); //inicializacion de la realimentacion
     
     int resultado_cadena = eslabon1.cadena();
     
     if (resultado_cadena == 0){
       Serial.println("TOLERANCIA 1 OK");
-      eslabon1.cuenta_vector = 0;
-      flag = true;
+      Serial.println(eslabon1.err_rel);
+      eslabon1.flag = true;
       /*SE SALE DE LA REALIMENTACION*/
     }
     else if(resultado_cadena == 1){
       Serial.println("CICLOS MAXIMOS ALCANZADOS, REVISAR TOLERANCIA");
-      eslabon1.cuenta_vector = 0;
-      flag = true;
+      eslabon1.flag = true;
       /*SE SALE DE LA REALIMENTACION*/
     }
     else if(resultado_cadena == 2){
+      Serial.println("ERROR DEMASIADO ELEVADO");
+      Serial.println(eslabon1.err_rel);
+      eslabon1.flag = true;
+      /*SE SALE DE LA REALIMENTACION*/
+    }
+    else if(resultado_cadena == 3){
       eslabon1.pos_env = eslabon1.pos_rec;
-      servo1.write(eslabon1.pos_rec);
+      servo1.write(k*convert_and_clip(eslabon1.pos_rec));
       Serial.println("SEGUIMOS CALCULANDO");
-      flag = false;
+      eslabon1.flag = false;
       /*SEGUIMOS EN LA REALIMENTACION*/
     };
+    eslabon1.cuenta_vector = 0;
     Serial.println("--------------");
   };
 }
 void motor2(){
   /*LECTURAS */
 
-  // CALCULO DE LA MEDIA
-  if (eslabon2.cuenta_vector < eslabon2.dim){
-      eslabon2.recoge(analogRead(P2));
-      eslabon2.cuenta_vector++;
+  // CALCULO DE LA MEDIA DE LAS LECTURAS
+  if (eslabon2.cuenta_vector < eslabon2.dim ){
+    eslabon2.recoge(analogRead(P2));
+    eslabon2.cuenta_vector++;
   }
   else{
-    Serial.println(" ");
-    Serial.println("--------------");
-    Serial.println("CALCULOS");
     eslabon2.media(PENDIENTE);
-    Serial.println("");
-    Serial.print("POSICION REAL SERVO ");
-    Serial.print(eslabon2.num_servo);
-    Serial.print(": ");
-    Serial.print(eslabon2.pos_real);
-    Serial.println(" ");
-    delay(500);
+    
     /* REALIMENTACION */
-    
-    if (flag2) {eslabon2.ini();}; //inicializacion de la realimentacion
-    
     eslabon2.lectura_pos = eslabon2.pos_real; //variable de posicion leida media
+    if (eslabon2.flag) eslabon2.ini(); //inicializacion de la realimentacion
     
-    int resultado_cadena2 = eslabon2.cadena();
-    if (resultado_cadena2 == 0){
-      Serial.println("TOLERANCIA OK");
-      eslabon2.cuenta_vector = 0;
-      flag2 = true;
+    int resultado_cadena = eslabon2.cadena();
+    
+    if (resultado_cadena == 0){
+      Serial.println("TOLERANCIA 2 OK");
+      Serial.println(eslabon2.err_rel);
+      eslabon2.flag = true;
       /*SE SALE DE LA REALIMENTACION*/
     }
-    else if(resultado_cadena2 == 1){
+    else if(resultado_cadena == 1){
       Serial.println("CICLOS MAXIMOS ALCANZADOS, REVISAR TOLERANCIA");
-      eslabon2.cuenta_vector = 0;
-      flag2 = true;
+      eslabon2.flag = true;
       /*SE SALE DE LA REALIMENTACION*/
     }
-    else if(resultado_cadena2 == 2){
+    else if(resultado_cadena == 2){
+      Serial.println("ERROR DEMASIADO ELEVADO");
+      Serial.println(eslabon2.err_rel);
+      eslabon2.flag = true;
+      /*SE SALE DE LA REALIMENTACION*/
+    }
+    else if(resultado_cadena == 3){
       eslabon2.pos_env = eslabon2.pos_rec;
-      //servo2.write(eslabon2.pos_rec);
+      servo2.write(k*convert_and_clip(eslabon2.pos_rec));
       Serial.println("SEGUIMOS CALCULANDO");
-      flag2 = false;
+      eslabon2.flag = false;
       /*SEGUIMOS EN LA REALIMENTACION*/
     };
+    eslabon2.cuenta_vector = 0;
+    Serial.println("--------------");
+  };
+}
+void motor3(){
+  /*LECTURAS */
+
+  // CALCULO DE LA MEDIA DE LAS LECTURAS
+  if (eslabon3.cuenta_vector < eslabon3.dim ){
+    eslabon3.recoge(analogRead(P3));
+    eslabon3.cuenta_vector++;
+  }
+  else{
+    eslabon3.media(PENDIENTE);
     
+    /* REALIMENTACION */
+    eslabon3.lectura_pos = eslabon3.pos_real; //variable de posicion leida media
+    if (eslabon3.flag) eslabon3.ini(); //inicializacion de la realimentacion
+    
+    int resultado_cadena = eslabon3.cadena();
+    
+    if (resultado_cadena == 0){
+      Serial.println("TOLERANCIA 2 OK");
+      Serial.println(eslabon3.err_rel);
+      eslabon3.flag = true;
+      /*SE SALE DE LA REALIMENTACION*/
+    }
+    else if(resultado_cadena == 1){
+      Serial.println("CICLOS MAXIMOS ALCANZADOS, REVISAR TOLERANCIA");
+      eslabon3.flag = true;
+      /*SE SALE DE LA REALIMENTACION*/
+    }
+    else if(resultado_cadena == 2){
+      Serial.println("ERROR DEMASIADO ELEVADO");
+      Serial.println(eslabon3.err_rel);
+      eslabon3.flag = true;
+      /*SE SALE DE LA REALIMENTACION*/
+    }
+    else if(resultado_cadena == 3){
+      eslabon3.pos_env = eslabon3.pos_rec;
+      servo3.write(k_S3*convert_and_clip_S3(eslabon3.pos_rec));
+      Serial.println("SEGUIMOS CALCULANDO");
+      eslabon3.flag = false;
+      /*SEGUIMOS EN LA REALIMENTACION*/
+    };
+    eslabon3.cuenta_vector = 0;
     Serial.println("--------------");
   };
 }

@@ -9,12 +9,14 @@ public:
   float pos_real;
   float offset;
 	int k=0;
+  float tol = 0.005;
 	float err;
-	float err_rel;
+	double err_rel;
   int dim = DIM;
   int v[DIM];
   int num_servo;
   int cuenta_vector=0;
+  bool flag;
   
   /*METODOS*/
   void ini(void);
