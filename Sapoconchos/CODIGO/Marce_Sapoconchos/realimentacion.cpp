@@ -8,6 +8,7 @@ float realimentacion::calcula_error(float pos) {
 }
 void realimentacion::ini(){
   k = 0; // inicializa el contador de ciclos
+  tol = 0.005; // valor de la tolerancia
   err = lectura_pos - pos_env; // calcular distancia a la que se ha quedado de la dada
   err_rel = calcula_error(pos_env) - 1; // calcular el error rel a la posicion enviada
 }
@@ -26,8 +27,14 @@ void realimentacion::media(float pendiente){
      pos_real=(float)(media-offset)/pendiente;
     }
   };
-  if (pos_real < 0) pos_real = (-125.0 / 88.97) * pos_real;
-  if (pos_real >= 0) pos_real = (125 / 84.99) * pos_real;
+  if (num_servo == 3){
+    if (pos_real <= 0) pos_real = (-90.0 / 280.0) * pos_real;
+    else if (pos_real > 0) pos_real = (90.0 / 280.0) * pos_real;
+  }
+  else{
+    if (pos_real < 0) pos_real = (-125.0 / 88.97) * pos_real;
+    if (pos_real >= 0) pos_real = (125.0 / 84.99) * pos_real;
+  };
 }
 
 int realimentacion::cadena(){

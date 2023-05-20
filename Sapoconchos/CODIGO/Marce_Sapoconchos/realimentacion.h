@@ -9,7 +9,7 @@ public:
   float pos_real;
   float offset;
 	int k=0;
-  float tol = 0.005;
+  float tol;
 	float err;
 	double err_rel;
   int dim = DIM;
@@ -24,4 +24,7 @@ public:
   int cadena(void);
   void recoge(int);
   void media(float);
+  void set_tol(float t){
+    tol = t;
+  };
 };
