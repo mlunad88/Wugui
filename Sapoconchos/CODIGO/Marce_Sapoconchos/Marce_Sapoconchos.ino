@@ -120,6 +120,7 @@ void motor1(){
     Serial.print(eslabon1.pos_real);
     Serial.println(" ");
     delay(500);
+    
     /* REALIMENTACION */
     
     if (flag) {eslabon1.ini();}; //inicializacion de la realimentacion
@@ -143,6 +144,8 @@ void motor1(){
     else if(resultado_cadena == 2){
       eslabon1.pos_env = eslabon1.pos_rec;
       servo1.write(eslabon1.pos_rec);
+      // si el valor es < 200 se trata como un ángulo
+      // sino, como un pulso en microsegundos
       Serial.println("SEGUIMOS CALCULANDO");
       flag = false;
       /*SEGUIMOS EN LA REALIMENTACION*/
