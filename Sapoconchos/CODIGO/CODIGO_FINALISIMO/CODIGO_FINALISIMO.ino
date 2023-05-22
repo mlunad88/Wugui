@@ -98,7 +98,7 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(P1,INPUT);
   pinMode(P2,INPUT);
-  pinMode(P3, INPUT);
+  pinMode(P3,INPUT);
   pinMode(P4,INPUT);
 
     // Para leer la posición de los servos y los potes en pantalla
